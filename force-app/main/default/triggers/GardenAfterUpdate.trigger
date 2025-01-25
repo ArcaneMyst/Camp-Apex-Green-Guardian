@@ -3,7 +3,7 @@ trigger GardenAfterUpdate on CAMPX__Garden__c (after update) {
     List<Task> tasksToInsert = new List<Task>();
     List<Task> tasksToUpdate = new List<Task>();
     List<Task> tasksToDelete = new List<Task>();
-
+    
     // Iterate through the updated Garden records
     for(CAMPX__Garden__c garden : Trigger.new) {
         // Check if CAMPX__Manager__c is populated
@@ -14,7 +14,8 @@ trigger GardenAfterUpdate on CAMPX__Garden__c (after update) {
                 Subject = 'Acquire Plants',
                 OwnerId = garden.CAMPX__Manager__c // Assign the Task to the Manager
             );
-            tasksToInsert.add(newTask);
+            tasksToInsert.add(newTask);         
+        
         }
 
         if (Trigger.OldMap.get(garden.Id).CAMPX__Manager__c !=null && Trigger.OldMap.get(garden.Id).CAMPX__Manager__c != garden.CAMPX__Manager__c) {
@@ -34,8 +35,8 @@ trigger GardenAfterUpdate on CAMPX__Garden__c (after update) {
             List<Task> taskToRemove = [SELECT Id, Status, Subject, WhatId, OwnerId FROM Task WHERE WhatId = :garden.Id AND Subject = 'Acquire Plants' AND Status != 'Completed' AND OwnerId = :Trigger.OldMap.get(garden.Id).CAMPX__Manager__c];
             if(!taskToRemove.isEmpty()){
                 tasksToDelete.addAll(taskToRemove);
-            }                  
-          
+            }        
+                      
         }
     }
 
@@ -67,5 +68,5 @@ trigger GardenAfterUpdate on CAMPX__Garden__c (after update) {
             System.debug('Error while deleting tasks: ' + e.getMessage());            
         }
     }
-    
+   
 }
